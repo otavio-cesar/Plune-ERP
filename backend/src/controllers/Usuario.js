@@ -11,21 +11,17 @@ module.exports = {
   async login(req, res) {
     const { email, senha } = req.body;
 
-    if (!email) {
-      return res.status(400).json({ error: "Email não informado!" });
+    if (!email || !senha) {
+      return res.status(400).json({ error: "Email ou senha não informado!" });
     }
-
-    if (!senha) {
-      return res.status(400).json({ error: "Senha não informada!" });
-    }
-
+ 
     const usuario = await usuarioService.ObterCompletoPorEmail(email);
     if (!usuario) {
       return res.status(400).json({ error: "Usuario não encontrado!" });
     }
 
     if (usuario.permissao === EnumPermissao.Basic) {
-      return res.status(400).json({ error: "Clientes não tem acesso!" });
+      return res.status(400).json({ error: "Usuário não tem acesso!" });
     }
 
     const token = jwt.sign(
