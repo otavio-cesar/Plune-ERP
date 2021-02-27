@@ -1,4 +1,5 @@
 const BaseService = require('./BaseService');
+const { Op } = require("sequelize");
 
 class UsuarioService extends BaseService {
 
@@ -7,12 +8,15 @@ class UsuarioService extends BaseService {
     this.AbstractClass = AbstractClass;
   }
 
-  async ObterCompletoPorEmail(email) {
-    if (!email)
+  async ObterCompletoPorEmailOuNome(emailNome) {
+    if (!emailNome)
       return undefined;
     return await this.AbstractClass.findOne({
       where: {
-        email
+        [Op.or]: [
+          { email: emailNome },
+          { nome: emailNome }
+        ]
       }
     });
   }

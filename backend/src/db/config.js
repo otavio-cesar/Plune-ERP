@@ -4,9 +4,13 @@ module.exports = {
   database: 'ddn8nl4u64js9p',
   host: 'ec2-3-223-72-172.compute-1.amazonaws.com',
   dialect: 'postgres',
-  ssl: true,
   define: {
-    timestamps: true,
+    timestamps: false,
   },
-  native: true,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
+  }
 }

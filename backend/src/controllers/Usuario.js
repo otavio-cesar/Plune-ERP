@@ -7,32 +7,32 @@ const constants = require("../util/constants.json");
 const usuarioService = new UsuarioService(Usuario);
 
 module.exports = {
-    
-  async login(req, res) {
-    const { email, senha } = req.body;
 
-    if (!email || !senha) {
-      return res.status(400).json({ error: "Email ou senha não informado!" });
+  async login(req, res) {
+    const { emailNome, senha } = req.body;
+
+    if (!emailNome || !senha) {
+      return res.status(400).json({ error: "Usuário ou senha não informado!" });
     }
- 
-    const usuario = await usuarioService.ObterCompletoPorEmail(email);
+
+    const usuario = await usuarioService.ObterCompletoPorEmailOuNome(emailNome);
     if (!usuario) {
       return res.status(400).json({ error: "Usuario não encontrado!" });
     }
 
-    if (usuario.permissao === EnumPermissao.Basic) {
-      return res.status(400).json({ error: "Usuário não tem acesso!" });
+    if (usuario.senha !== senha) {
+      return res.status(400).json({ error: "Senha inválida!" });
     }
 
     const token = jwt.sign(
       { email: usuario.email, senha: usuario.senha },
-      constants.jwt,
+      constants.jwtConst,
       {
         expiresIn: 60 * 60 * 24 * 120, // ultimo digito é numero de dias
       }
     );
 
-    res.headers['token'] = token
+    res.setHeader('Token', token)
 
     const userResult = {
       id: usuario.id,
