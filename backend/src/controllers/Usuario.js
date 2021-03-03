@@ -9,18 +9,18 @@ const usuarioService = new UsuarioService(Usuario);
 module.exports = {
 
   async login(req, res) {
-    const { emailNome, senha } = req.body;
+    const { username, password } = req.body;
 
-    if (!emailNome || !senha) {
+    if (!username || !password) {
       return res.status(400).json({ error: "Usuário ou senha não informado!" });
     }
 
-    const usuario = await usuarioService.ObterCompletoPorEmailOuNome(emailNome);
+    const usuario = await usuarioService.ObterCompletoPorEmailOuNome(username);
     if (!usuario) {
       return res.status(400).json({ error: "Usuario não encontrado!" });
     }
 
-    if (usuario.senha !== senha) {
+    if (usuario.senha !== password) {
       return res.status(400).json({ error: "Senha inválida!" });
     }
 
