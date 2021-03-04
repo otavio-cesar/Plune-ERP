@@ -6,7 +6,7 @@ import { getUsers } from "../../services/usuario";
 import { MeuAlerta } from "../../components/meuAlerta";
 import { useHistory } from 'react-router-dom';
 
-export default function LoginPage(props) {
+export default function HomePage(props) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showAlert, setShowAlert] = useState(false);
@@ -38,7 +38,7 @@ export default function LoginPage(props) {
             <Container className="container" maxWidth="sm">
                 <div className="logo">
                     <FaIndustry className="logo-img" size={50} color="#3f51b5" />
-                    <span className="logo-title">Controle de Ordens de Produção</span>
+                    <span className="logo-title">HOME</span>
                 </div>
                 <form autoComplete="off" onSubmit={handleLogin} >
                     <TextField className="line" id="standard-basic" label="Usuário/Email" required value={username} onChange={(e) => setUsername(e.target.value)} />
