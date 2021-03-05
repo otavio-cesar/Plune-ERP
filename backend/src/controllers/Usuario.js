@@ -3,8 +3,10 @@ var jwt = require("jsonwebtoken");
 const EnumPermissao = require("../util/EnumPermissao");
 const UsuarioService = require("../services/Usuario");
 const constants = require("../util/constants.json");
+const PluneERPService = require("../services/PluneERPService");
 
 const usuarioService = new UsuarioService(Usuario);
+const pluneERPService = new PluneERPService()
 
 module.exports = {
 
@@ -43,4 +45,10 @@ module.exports = {
 
     return res.json(userResult);
   },
+
+  async getUsersPlune(req, res) {
+    let users = await pluneERPService.getUsers();
+    return res.json(users)
+  }
+
 };

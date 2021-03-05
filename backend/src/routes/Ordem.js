@@ -1,13 +1,11 @@
 const express = require('express');
-const UsuarioController = require('../controllers/Usuario');
+const OrdemController = require('../controllers/Ordem');
 
-const usuario = express.Router();
+const ordem = express.Router();
 // const auth = require('./Autorize')
 // const EnumPermissao = require('../util/EnumPermissao');
 
-usuario.post('/login', UsuarioController.login);
-
-usuario.get('/plune', UsuarioController.getUsersPlune);
+ordem.get('/ordemPlune', OrdemController.getOrdemPlune);
 
 // usuario.post(
 //     '/login_validate',
@@ -20,4 +18,4 @@ usuario.get('/plune', UsuarioController.getUsersPlune);
 //     (req, res, next) => auth.Authorize(req, res, next, [EnumPermissao.Admin, EnumPermissao.Lojista, EnumPermissao.Basic]),
 //     UsuarioController.updateUsuario);
 
-module.exports = usuario;
+module.exports = ordem;
