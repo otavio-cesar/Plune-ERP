@@ -9,7 +9,7 @@ import { useHistory } from 'react-router-dom';
 export default function HomePage(props) {
     const [username, setUsername] = useState('');
     const [showAlert, setShowAlert] = useState(false);
-    const [messageAlert, setMessageAlert] = useState('');
+    const [messageAlert, setMessageAlert] = useState(''); 
     const history = useHistory();
 
     useEffect(() => {
