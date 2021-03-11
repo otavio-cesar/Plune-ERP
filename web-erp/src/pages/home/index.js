@@ -6,18 +6,20 @@ import { getOrdens } from "../../services/ordem";
 import { MeuAlerta } from "../../components/meuAlerta";
 import { useHistory } from 'react-router-dom';
 import { DataGrid } from '@material-ui/data-grid';
+import { viewPort } from "../../util/responsive";
 
 export default function HomePage(props) {
+    const screenWidth = viewPort()
     const [username, setUsername] = useState('');
     const [showAlert, setShowAlert] = useState(false);
     const [messageAlert, setMessageAlert] = useState('');
     const [rows, setRows] = useState([]);
     const history = useHistory();
-
+    
     const columns = [
-        { field: 'id', headerName: 'OP', width: 100 },
-        { field: 'servico', headerName: 'Serviço', width: 430 },
-        { field: 'situacao', headerName: 'Situação', width: 130 },
+        { field: 'id', headerName: 'OP', width: screenWidth * (0.15) },
+        { field: 'servico', headerName: 'Serviço', width: screenWidth * (0.6) },
+        { field: 'situacao', headerName: 'Situação', width: screenWidth * (0.2) },
         // {
         //     field: 'age',
         //     headerName: 'Age',
@@ -57,11 +59,11 @@ export default function HomePage(props) {
     return (
         <>
             <MeuAlerta open={showAlert} setOpen={setShowAlert} severity="error" message={messageAlert}></MeuAlerta>
-            <Container className="container" maxWidth="sm">
-                <div style={{ height: 400, width: '100%' }}>
-                    <DataGrid rows={rows} columns={columns} pageSize={5} checkboxSelection />
+            <div className="container" >
+                <div className="containerTable">
+                    <DataGrid rows={rows} columns={columns} pageSize={10} />
                 </div>
-            </Container>
+            </div>
         </>
     );
 }
