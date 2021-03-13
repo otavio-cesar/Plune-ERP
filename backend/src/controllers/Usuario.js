@@ -34,14 +34,18 @@ module.exports = {
       }
     );
 
-    res.setHeader('Token', token)
+    const data = await pluneERPService.getProductionLine({ UserPCPId: usuario.UserPCPId })
+    const productionLine = data.data.row.map(p => p.LinhaId)
 
     const userResult = {
       id: usuario.id,
       nome: usuario.nome,
       email: usuario.email,
       permissao: usuario.permissao,
+      productionLine
     };
+
+    res.setHeader('Token', token)
 
     return res.json(userResult);
   },

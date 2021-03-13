@@ -5,6 +5,6 @@ const usuario = express.Router();
 
 usuario.post('/login', UsuarioController.login);
 
-usuario.get('/plune', UsuarioController.getUsersPlune);
+usuario.get('/', UsuarioController.getUsersPlune);
 
 module.exports = usuario;

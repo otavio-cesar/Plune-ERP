@@ -2,15 +2,14 @@ import { Button, Container, TextField } from "@material-ui/core";
 import './styles.css';
 import { FaIndustry } from 'react-icons/fa';
 import { useEffect, useState } from "react";
-import { getOrdens, getOrdensByLineProduction } from "../../services/ordem";
+import { getStagesByIdOrder } from "../../services/stage";
 import { MeuAlerta } from "../../components/meuAlerta";
 import { useHistory } from 'react-router-dom';
 import { DataGrid } from '@material-ui/data-grid';
 import { viewPort } from "../../util/responsive";
 import Loading from "../../components/loading";
-import EnumPermissions from "../../util/EnumPermissions";
 
-export default function HomePage(props) {
+export default function EtapaPage(props) {
     const screenWidth = viewPort()
     const [username, setUsername] = useState('');
     const [showAlert, setShowAlert] = useState(false);
@@ -20,9 +19,10 @@ export default function HomePage(props) {
     const history = useHistory();
 
     const columns = [
-        { field: 'id', headerName: 'OP', width: screenWidth * (0.15) },
-        { field: 'servico', headerName: 'Produto', width: screenWidth * (0.6) },
-        { field: 'situacao', headerName: 'Situação', width: screenWidth * (0.2) },
+        { field: 'id', hide: true },
+        { field: 'ordem', headerName: 'Ordem', width: screenWidth * (0.15) },
+        { field: 'processo', headerName: 'Processo', width: screenWidth * (0.5) },
+        { field: 'situacao', headerName: 'Situação', width: screenWidth * (0.25) },
         // {
         //     field: 'age',
         //     headerName: 'Age',
@@ -41,26 +41,25 @@ export default function HomePage(props) {
     ];
 
     useEffect(() => {
-        showOrdens()
+        const idOrder = props.location.state.idOrder
+        console.log(idOrder)
+        if (!idOrder)
+            history.push('/')
+        else {
+            showStages(idOrder)
+        }
     }, [])
 
-    async function showOrdens() {
-        let data
-        const usuario = JSON.parse(localStorage.getItem('user'))
-        if (usuario.permissao == EnumPermissions.Basic) {
-            const LinhaProcessoProdutivoIds = JSON.parse(localStorage.getItem('user')).productionLine.map(p => p.value)
-            setLoading(true)
-            data = await getOrdensByLineProduction(LinhaProcessoProdutivoIds);
-        } else {
-            setLoading(true)
-            data = await getOrdens();
-        }
+    async function showStages(idOrder) {
+        setLoading(true)
+        const data = await getStagesByIdOrder(idOrder);
         setLoading(false)
 
         const _rows = data.data.row.map(o => {
             return {
-                id: o.Id.value,
-                servico: o.ProdutoId.resolved,
+                id: o.ProcessoId.value,
+                ordem: o.OrdemProcessoId.value,
+                processo: o.ProcessoId.resolved,
                 situacao: o.Status.resolved
             }
         })
@@ -77,7 +76,7 @@ export default function HomePage(props) {
 
             <div className="container" >
                 <div className="containerTable">
-                    <DataGrid rows={rows} columns={columns} pageSize={10} onCellClick={(el) => history.push('/etapa', { idOrder: el.row.id })} />
+                    <DataGrid rows={rows} columns={columns} pageSize={10} />
                 </div>
             </div>
         </>

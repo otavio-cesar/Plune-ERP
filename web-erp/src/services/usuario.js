@@ -1,6 +1,6 @@
 import { urlAPI } from "../util/constants"
 
-export async function getUsers(username, password) {
+export async function login(username, password) {
     const res = await fetch(`${urlAPI}usuario/login`, {
         method: "POST",
         headers: {

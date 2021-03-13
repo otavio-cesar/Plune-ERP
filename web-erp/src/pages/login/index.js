@@ -2,21 +2,25 @@ import { Button, Container, TextField } from "@material-ui/core";
 import './styles.css';
 import { FaIndustry } from 'react-icons/fa';
 import { useState } from "react";
-import { getUsers } from "../../services/usuario";
+import { login } from "../../services/usuario";
 import { MeuAlerta } from "../../components/meuAlerta";
 import { useHistory } from 'react-router-dom';
+import Loading from '../../components/loading/index';
 
 export default function LoginPage(props) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showAlert, setShowAlert] = useState(false);
     const [messageAlert, setMessageAlert] = useState('');
+    const [loading, setLoading] = useState(false);
     const history = useHistory();
 
     async function handleLogin(e) {
         e.preventDefault();
 
-        const res = await getUsers(username, password)
+        setLoading(true)
+        const res = await login(username, password)
+        setLoading(false)
 
         if (res.status == 200) {
             const user = await res.json()
@@ -34,6 +38,7 @@ export default function LoginPage(props) {
     return (
         <>
             <MeuAlerta open={showAlert} setOpen={setShowAlert} severity="error" message={messageAlert}></MeuAlerta>
+            {loading && <Loading ></Loading>}
 
             <Container className="container" maxWidth="sm">
                 <div className="logo">

@@ -17,6 +17,12 @@ function Routes() {
                             component={lazy(() => import("../pages/home/index"))}
                         />
                         <DefaultRoute
+                            needUserLogged
+                            exact
+                            path="/etapa"
+                            component={lazy(() => import("../pages/etapa/index"))}
+                        />
+                        <DefaultRoute
                             exact
                             path="/login"
                             component={lazy(() => import("../pages/login/index"))}
