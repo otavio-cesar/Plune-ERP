@@ -16,6 +16,7 @@ export default function EtapaPage(props) {
     const [messageAlert, setMessageAlert] = useState('');
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [selectedRow, setSelectedRow] = useState();
     const history = useHistory();
 
     const columns = [
@@ -60,13 +61,20 @@ export default function EtapaPage(props) {
                 id: o.ProcessoId.value,
                 ordem: o.OrdemProcessoId.value,
                 processo: o.ProcessoId.resolved,
-                situacao: o.Status.resolved
+                situacao: o.Status.resolved,
+                metadata: { ...o }
             }
         })
         setRows(_rows)
     }
 
-    async function handleLogin(e) {
+    async function handleStartStage() {
+
+    }
+
+    async function handleSelectRow(el) {
+        console.log(el)
+        setSelectedRow(el.row)
     }
 
     return (
@@ -75,8 +83,13 @@ export default function EtapaPage(props) {
             {loading && <Loading ></Loading>}
 
             <div className="container" >
+                <div className="lineAction">
+                    <Button variant="contained" color="primary" onClick={() => handleStartStage()} disabled={!selectedRow}>
+                        Iniciar Etapa
+                    </Button>
+                </div>
                 <div className="containerTable">
-                    <DataGrid rows={rows} columns={columns} pageSize={10} />
+                    <DataGrid rows={rows} columns={columns} pageSize={10} onCellClick={(el) => handleSelectRow(el)} />
                 </div>
             </div>
         </>

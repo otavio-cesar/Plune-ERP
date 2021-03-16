@@ -10,17 +10,21 @@ module.exports = {
   },
 
   async getOrdemPluneByLineProduction(req, res) {
-    const { linhaprocessoprodutivoids } = req.headers
-    let ordens
-    const data = await pluneERPService.getStage({ LinhaProcessoProdutivoIds: linhaprocessoprodutivoids })
-    const stages = data.data.row
-    if (stages.length > 0) {
-      let Ids = stages.map(s => s.OrdemId.value)
-      ordens = await pluneERPService.getOrders({ Ids })
-    } else {
-      ordens = { data: { row: [] } }
+    try {
+      const { linhaprocessoprodutivoids } = req.headers
+      let ordens
+      const data = await pluneERPService.getStage({ LinhaProcessoProdutivoIds: linhaprocessoprodutivoids })
+      const stages = data.data.row
+      if (stages.length > 0) {
+        let Ids = stages.map(s => s.OrdemId.value)
+        ordens = await pluneERPService.getOrders({ Ids })
+      } else {
+        ordens = { data: { row: [] } }
+      }
+      return res.json(ordens);
+    } catch (e) {
+      res.status(500).json(e.message)
     }
-    return res.json(ordens);
   },
 
 };

@@ -5,7 +5,7 @@ const order = 'JSON/PCP.OrdemProducaoItem/Browse'
 const linha = 'JSON/PCP.UsuarioPCPLinhaProducao/Browse'
 const stage = 'JSON/PCP.OrdemProducaoItemProcessoProdutivo/Browse'
 
-const cookie = "UltraClassLogin=teste10:Ultra.Users:rodrigo-maximo@hotmail.com:@8vP-n9M2gbDdWMlLBu0ZaDgUJX6yVm51AnZRgBBv2lE8e52Cu3RYM9WBxcKIsBh90DETHI02zwLdzo_JMS8kkQ:pt_br:::992"
+const cookie = "UltraClassLogin=teste10:Ultra.Users:rodrigo-maximo@hotmail.com:@7GWIyvqtoV1YvLkUn-td7oDKQZwXzFicM_JHT3CksB-NkHNuH6TiRwoNxlfunRWwu-6IX6kyIZGth6hBDD9XYg:pt_br:::992"
 
 class PluneERPService {
 
@@ -64,6 +64,21 @@ class PluneERPService {
     }
 
     async getProductionLine(params) {
+        let _params = ''
+        if (params.UserPCPId) {
+            _params = `PCP.UsuarioPCPLinhaProducao.UserPCPId=${params.UserPCPId}&`
+        }
+        const res = await fetch(`${apiUrl}${linha}?${_params}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                cookie: cookie
+            },
+        })
+        return await res.json()
+    }
+
+    async patchStageSituation(params) {
         let _params = ''
         if (params.UserPCPId) {
             _params = `PCP.UsuarioPCPLinhaProducao.UserPCPId=${params.UserPCPId}&`
