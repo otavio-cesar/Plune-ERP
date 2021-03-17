@@ -2,26 +2,32 @@ import { Button, Container, TextField } from "@material-ui/core";
 import './styles.css';
 import { FaIndustry } from 'react-icons/fa';
 import { useEffect, useState } from "react";
-import { getStagesByIdOrder } from "../../services/stage";
+import { getStagesByIdOrder, patchStageSituation } from "../../services/stage";
 import { MeuAlerta } from "../../components/meuAlerta";
 import { useHistory } from 'react-router-dom';
 import { DataGrid } from '@material-ui/data-grid';
 import { viewPort } from "../../util/responsive";
 import Loading from "../../components/loading";
+import { stageSituation } from "../../util/constants";
+
+import React from 'react';
+import { MeuDialog } from "../../components/dialog";
 
 export default function EtapaPage(props) {
     const screenWidth = viewPort()
-    const [username, setUsername] = useState('');
     const [showAlert, setShowAlert] = useState(false);
-    const [messageAlert, setMessageAlert] = useState('');
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(false);
     const [selectedRow, setSelectedRow] = useState();
+    const [showDialog, setShowDialog] = useState(<></>);
+    const [reason, setReason] = useState('')
     const history = useHistory();
+
+    const idOrder = props.location.state.idOrder
 
     const columns = [
         { field: 'id', hide: true },
-        { field: 'ordem', headerName: 'Ordem', width: screenWidth * (0.15) },
+        { field: 'ordem', headerName: 'Ordem', width: screenWidth * (0.175) },
         { field: 'processo', headerName: 'Processo', width: screenWidth * (0.5) },
         { field: 'situacao', headerName: 'Situação', width: screenWidth * (0.25) },
         // {
@@ -42,7 +48,6 @@ export default function EtapaPage(props) {
     ];
 
     useEffect(() => {
-        const idOrder = props.location.state.idOrder
         console.log(idOrder)
         if (!idOrder)
             history.push('/')
@@ -69,7 +74,73 @@ export default function EtapaPage(props) {
     }
 
     async function handleStartStage() {
+        setShowDialog(
+            <MeuDialog
+                open={true}
+                setOpen={setShowDialog}
+                title={'Iniciar etapa'}
+                message={`Deseja iniciar o processo: ${selectedRow.metadata.ProcessoId.resolved}?`}
+                action={async () => {
+                    setLoading(true)
+                    await patchStageSituation(idOrder, selectedRow.metadata.ProcessoId.value, selectedRow.metadata.ProdutoId.value, stageSituation.started.id)
+                        .then((data) => {
+                            console.log(data)
+                            rows.forEach((el, i) => {
+                                if (el.id == selectedRow.metadata.ProcessoId.value) {
+                                    rows[i] = { ...el, situacao: data.Field.Status.resolved, metadata: { ...data.Field } }
+                                    return
+                                }
+                            })
+                            setRows([...rows])
+                            setLoading(false)
+                            showMeuAlert('Etapa iniciada', 'success')
+                        })
+                        .catch(e => {
+                            setLoading(false)
+                            showMeuAlert(e.message, 'error')
+                        })
+                }}>
+            </MeuDialog>
+        )
+    }
 
+    async function handlePauseStage() {
+        setShowDialog(
+            <MeuDialog
+                open={true}
+                setOpen={setShowDialog}
+                title={'Pausar etapa'}
+                message={`Deseja interromper o processo: ${selectedRow.metadata.ProcessoId.resolved}?`}
+                askReason
+                reason={reason}
+                setReason={setReason}
+                action={async () => {
+                    setLoading(true)
+                    await patchStageSituation(idOrder, selectedRow.metadata.ProcessoId.value, selectedRow.metadata.ProdutoId.value, stageSituation.paused.id, reason)
+                        .then((data) => {
+                            console.log(data)
+                            rows.forEach((el, i) => {
+                                if (el.id == selectedRow.metadata.ProcessoId.value) {
+                                    rows[i] = { ...el, situacao: data.Field.Status.resolved, metadata: { ...data.Field } }
+                                    return
+                                }
+                            })
+                            setRows([...rows])
+                            setLoading(false)
+                            showMeuAlert('Etapa pausada', 'success')
+                        })
+                        .catch(e => {
+                            setLoading(false)
+                            showMeuAlert(e.message, 'error')
+                        })
+                }}>
+            </MeuDialog>
+        )
+    }
+
+    async function handleFinishStage() {
+        var reason
+        await patchStageSituation(idOrder, selectedRow.metadata.ProcessoId.value, selectedRow.metadata.ProdutoId.value, stageSituation.paused.id, reason)
     }
 
     async function handleSelectRow(el) {
@@ -77,15 +148,33 @@ export default function EtapaPage(props) {
         setSelectedRow(el.row)
     }
 
+    function showMeuAlert(message, severity) {
+        setShowAlert(
+            <MeuAlerta
+                open={true}
+                setOpen={setShowAlert}
+                severity={severity}
+                message={message}>
+            </MeuAlerta>
+        )
+    }
+
     return (
         <>
-            <MeuAlerta open={showAlert} setOpen={setShowAlert} severity="error" message={messageAlert}></MeuAlerta>
+            {showAlert}
             {loading && <Loading ></Loading>}
+            {showDialog}
 
             <div className="container" >
                 <div className="lineAction">
                     <Button variant="contained" color="primary" onClick={() => handleStartStage()} disabled={!selectedRow}>
                         Iniciar Etapa
+                    </Button>
+                    <Button variant="contained" color="primary" onClick={() => handlePauseStage()} disabled={!selectedRow}>
+                        Interromper
+                    </Button>
+                    <Button variant="contained" color="primary" onClick={() => handleFinishStage()} disabled={!selectedRow}>
+                        Finalizar
                     </Button>
                 </div>
                 <div className="containerTable">

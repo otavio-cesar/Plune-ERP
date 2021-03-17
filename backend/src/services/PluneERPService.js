@@ -1,18 +1,19 @@
 const fetch = require("node-fetch");
 const apiUrl = 'https://solucao-teste10.plune.com.br/'
-const user = 'REST/Company.CompanyUsers/Browse'
-const order = 'JSON/PCP.OrdemProducaoItem/Browse'
-const linha = 'JSON/PCP.UsuarioPCPLinhaProducao/Browse'
-const stage = 'JSON/PCP.OrdemProducaoItemProcessoProdutivo/Browse'
+const user = 'REST/Company.CompanyUsers/'
+const order = 'JSON/PCP.OrdemProducaoItem/'
+const linha = 'JSON/PCP.UsuarioPCPLinhaProducao/'
+const stage = 'JSON/PCP.OrdemProducaoItemProcessoProdutivo/'
 
 const cookie = "UltraClassLogin=teste10:Ultra.Users:rodrigo-maximo@hotmail.com:@7GWIyvqtoV1YvLkUn-td7oDKQZwXzFicM_JHT3CksB-NkHNuH6TiRwoNxlfunRWwu-6IX6kyIZGth6hBDD9XYg:pt_br:::992"
+const FilialId = "896"
 
 class PluneERPService {
 
     constructor() { }
 
     async getUsers() {
-        const res = await fetch(`${apiUrl}${user}`, {
+        const res = await fetch(`${apiUrl}${user}Browse`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -31,7 +32,7 @@ class PluneERPService {
             _params = `PCP.OrdemProducaoItem.Id=${params.Ids.join(',')}&`
             _params += `PCP.OrdemProducaoItem.BrowseLimit=0&`
         }
-        const res = await fetch(`${apiUrl}${order}?${_params}`, {
+        const res = await fetch(`${apiUrl}${order}Browse?${_params}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -53,7 +54,7 @@ class PluneERPService {
             _params += `_PCP.OrdemProducaoItemProcessoProdutivo.OrderDesc=0&`
             _params += `_PCP.OrdemProducaoItemProcessoProdutivo.Order=ProcessoId&`
         }
-        const res = await fetch(`${apiUrl}${stage}?${_params}`, {
+        const res = await fetch(`${apiUrl}${stage}Browse?${_params}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -80,10 +81,16 @@ class PluneERPService {
 
     async patchStageSituation(params) {
         let _params = ''
-        if (params.UserPCPId) {
-            _params = `PCP.UsuarioPCPLinhaProducao.UserPCPId=${params.UserPCPId}&`
+        if (params.OrdemId && params.ProcessoId && params.ProdutoId && params.Status) {
+            _params = `OrdemId=${params.OrdemId}&`
+            _params += `ProcessoId=${params.ProcessoId}&`
+            _params += `ProdutoId=${params.ProdutoId}&`
+            _params += `Status=${params.Status}&`
+            _params += `FilialId=${FilialId}&`
         }
-        const res = await fetch(`${apiUrl}${linha}?${_params}`, {
+        if (params.MotivoParadaId)
+            _params += `MotivoParadaId=${params.MotivoParadaId}&`
+        const res = await fetch(`${apiUrl}${stage}Update?${_params}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

@@ -11,17 +11,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function MeuAlerta({ open, setOpen, autoHideDuration = 3000, severity = "success", message }) {
+export function MeuAlerta({ open, setOpen, autoHideDuration = 4000, severity = "success", message }) {
   const classes = useStyles();
 
   function Alert(props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
   }
-
-  const handleClick = () => {
-    setOpen(true);
-  };
-
+  
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -31,9 +27,6 @@ export function MeuAlerta({ open, setOpen, autoHideDuration = 3000, severity = "
 
   return (
     <div className={classes.root}>
-      {/* <Button variant="outlined" onClick={handleClick}>
-        Open success snackbar
-      </Button> */}
       <Snackbar open={open} autoHideDuration={autoHideDuration} onClose={handleClose}>
         <Alert onClose={handleClose} severity={severity}>
           {message}
