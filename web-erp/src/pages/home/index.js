@@ -57,17 +57,16 @@ export default function HomePage(props) {
         }
         setLoading(false)
 
+        console.log(data.data.row)
         const _rows = data.data.row.map(o => {
             return {
                 id: o.Id.value,
                 servico: o.ProdutoId.resolved,
-                situacao: o.Status.resolved
+                situacao: o.Status.resolved,
+                metadata: { ...o }
             }
         })
         setRows(_rows)
-    }
-
-    async function handleLogin(e) {
     }
 
     return (
@@ -77,7 +76,7 @@ export default function HomePage(props) {
 
             <div className="container" >
                 <div className="containerTable">
-                    <DataGrid rows={rows} columns={columns} pageSize={10} onCellClick={(el) => history.push('/etapa', { idOrder: el.row.id })} />
+                    <DataGrid rows={rows} columns={columns} pageSize={10} onCellClick={(el) => history.push('/etapa', { idOrder: el.row.id, situacao: el.row.metadata.Status })} />
                 </div>
             </div>
         </>

@@ -6,6 +6,7 @@ const sequelize = new Sequelize(config);
 
 const models = [
   require('./Usuario')(sequelize, Sequelize),
+  require('./Etapa')(sequelize, Sequelize),
 ]
 models.forEach(model => {
   db[model.name] = model

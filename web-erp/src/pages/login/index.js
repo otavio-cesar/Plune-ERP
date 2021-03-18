@@ -6,6 +6,7 @@ import { login } from "../../services/usuario";
 import { MeuAlerta } from "../../components/meuAlerta";
 import { useHistory } from 'react-router-dom';
 import Loading from '../../components/loading/index';
+import { getPossibleStageSituation } from "../../services/stage";
 
 export default function LoginPage(props) {
     const [username, setUsername] = useState('');
@@ -19,7 +20,7 @@ export default function LoginPage(props) {
         e.preventDefault();
 
         setLoading(true)
-        const res = await login(username, password)
+        let res = await login(username, password)
         setLoading(false)
 
         if (res.status == 200) {
@@ -27,6 +28,19 @@ export default function LoginPage(props) {
             const token = res.headers['token']
             localStorage.setItem('user', JSON.stringify(user))
             localStorage.setItem('token', token);
+
+            res = await getPossibleStageSituation()
+            console.log(res)
+            if (res.data.row) {
+                const situations = res.data.row.map(d => {
+                    return {
+                        id: d.Id.value,
+                        value: d.Description.value
+                    }
+                })
+                localStorage.setItem("situations", JSON.stringify(situations))
+            }
+
             history.push('/');
         } else {
             setShowAlert(true)
@@ -52,7 +66,7 @@ export default function LoginPage(props) {
                         <Button variant="contained" color="primary" type="submit">
                             Entrar
                         </Button>
-                        <Button variant="outlined"  >Esqueci a senha</Button>
+                        <Button variant="outlined">Esqueci a senha</Button>
                     </div>
                 </form>
             </Container>

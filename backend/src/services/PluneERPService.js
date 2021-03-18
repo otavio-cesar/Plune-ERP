@@ -4,6 +4,7 @@ const user = 'REST/Company.CompanyUsers/'
 const order = 'JSON/PCP.OrdemProducaoItem/'
 const linha = 'JSON/PCP.UsuarioPCPLinhaProducao/'
 const stage = 'JSON/PCP.OrdemProducaoItemProcessoProdutivo/'
+const possibleSitutuation = '/JSON/PCP.MotivoParada/'
 
 const cookie = "UltraClassLogin=teste10:Ultra.Users:rodrigo-maximo@hotmail.com:@7GWIyvqtoV1YvLkUn-td7oDKQZwXzFicM_JHT3CksB-NkHNuH6TiRwoNxlfunRWwu-6IX6kyIZGth6hBDD9XYg:pt_br:::992"
 const FilialId = "896"
@@ -91,6 +92,17 @@ class PluneERPService {
         if (params.MotivoParadaId)
             _params += `MotivoParadaId=${params.MotivoParadaId}&`
         const res = await fetch(`${apiUrl}${stage}Update?${_params}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                cookie: cookie
+            },
+        })
+        return await res.json()
+    }
+
+    async getPossibleStageSituation() {
+        const res = await fetch(`${apiUrl}${possibleSitutuation}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

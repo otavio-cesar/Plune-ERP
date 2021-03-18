@@ -18,12 +18,16 @@ export default function EtapaPage(props) {
     const [showAlert, setShowAlert] = useState(false);
     const [rows, setRows] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [enableStart, setEnableStart] = useState(false);
+    const [enablePause, setEnablePause] = useState(false);
+    const [enableFinish, setEnableFinish] = useState(false);
     const [selectedRow, setSelectedRow] = useState();
     const [showDialog, setShowDialog] = useState(<></>);
     const [reason, setReason] = useState('')
     const history = useHistory();
 
     const idOrder = props.location.state.idOrder
+    const statusOrder = props.location.state.situacao
 
     const columns = [
         { field: 'id', hide: true },
@@ -112,11 +116,10 @@ export default function EtapaPage(props) {
                 title={'Pausar etapa'}
                 message={`Deseja interromper o processo: ${selectedRow.metadata.ProcessoId.resolved}?`}
                 askReason
-                reason={reason}
-                setReason={setReason}
-                action={async () => {
+                action={async (motivo) => {
+                    console.log(motivo)
                     setLoading(true)
-                    await patchStageSituation(idOrder, selectedRow.metadata.ProcessoId.value, selectedRow.metadata.ProdutoId.value, stageSituation.paused.id, reason)
+                    await patchStageSituation(idOrder, selectedRow.metadata.ProcessoId.value, selectedRow.metadata.ProdutoId.value, stageSituation.paused.id, motivo)
                         .then((data) => {
                             console.log(data)
                             rows.forEach((el, i) => {
@@ -139,13 +142,64 @@ export default function EtapaPage(props) {
     }
 
     async function handleFinishStage() {
-        var reason
-        await patchStageSituation(idOrder, selectedRow.metadata.ProcessoId.value, selectedRow.metadata.ProdutoId.value, stageSituation.paused.id, reason)
+        setShowDialog(
+            <MeuDialog
+                open={true}
+                setOpen={setShowDialog}
+                title={'Finalizar etapa'}
+                message={`Deseja finalizar o processo: ${selectedRow.metadata.ProcessoId.resolved}?`}
+                askQntProduction
+                action={async (quantidade) => {
+                    setLoading(true)
+                    console.log(quantidade)
+                    await patchStageSituation(idOrder, selectedRow.metadata.ProcessoId.value, selectedRow.metadata.ProdutoId.value, stageSituation.finished.id, null, quantidade)
+                        .then((data) => {
+                            console.log(data)
+                            rows.forEach((el, i) => {
+                                if (el.id == selectedRow.metadata.ProcessoId.value) {
+                                    rows[i] = { ...el, situacao: data.Field.Status.resolved, metadata: { ...data.Field } }
+                                    return
+                                }
+                            })
+                            setRows([...rows])
+                            setLoading(false)
+                            showMeuAlert('Etapa finalizada', 'success')
+                        })
+                        .catch(e => {
+                            setLoading(false)
+                            showMeuAlert(e.message, 'error')
+                        })
+                }}>
+            </MeuDialog>
+        )
     }
 
     async function handleSelectRow(el) {
         console.log(el)
         setSelectedRow(el.row)
+    }
+
+    useEffect(() => {
+        enableActions()
+    }, [selectedRow])
+
+    async function enableActions() {
+        if (selectedRow && statusOrder.value != stageSituation.finished.id) {
+            const situacao = selectedRow.metadata.Status.value
+            setEnableStart(
+                situacao == stageSituation.paused.id || situacao == stageSituation.freeToStart.id
+            )
+            setEnablePause(
+                situacao == stageSituation.started.id
+            )
+            setEnableFinish(
+                situacao != stageSituation.paused.id || situacao == stageSituation.finished.id
+            )
+        } else {
+            setEnableStart(false)
+            setEnableFinish(false)
+            setEnablePause(false)
+        }
     }
 
     function showMeuAlert(message, severity) {
@@ -167,13 +221,13 @@ export default function EtapaPage(props) {
 
             <div className="container" >
                 <div className="lineAction">
-                    <Button variant="contained" color="primary" onClick={() => handleStartStage()} disabled={!selectedRow}>
+                    <Button variant="contained" color="primary" onClick={() => handleStartStage()} disabled={!enableStart}>
                         Iniciar Etapa
                     </Button>
-                    <Button variant="contained" color="primary" onClick={() => handlePauseStage()} disabled={!selectedRow}>
+                    <Button variant="contained" color="primary" onClick={() => handlePauseStage()} disabled={!enablePause}>
                         Interromper
                     </Button>
-                    <Button variant="contained" color="primary" onClick={() => handleFinishStage()} disabled={!selectedRow}>
+                    <Button variant="contained" color="primary" onClick={() => handleFinishStage()} disabled={!enableFinish}>
                         Finalizar
                     </Button>
                 </div>
