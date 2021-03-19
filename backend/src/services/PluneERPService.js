@@ -53,7 +53,7 @@ class PluneERPService {
             _params += `PCP.OrdemProducaoItemProcessoProdutivo.OrdemId=${params.OrdemId}&`
             _params += `PCP.OrdemProducaoItemProcessoProdutivo.BrowseLimit=0&`
             _params += `_PCP.OrdemProducaoItemProcessoProdutivo.OrderDesc=0&`
-            _params += `_PCP.OrdemProducaoItemProcessoProdutivo.Order=ProcessoId&`
+            _params += `_PCP.OrdemProducaoItemProcessoProdutivo.Order=OrdemProcessoId&`
         }
         const res = await fetch(`${apiUrl}${stage}Browse?${_params}`, {
             method: "GET",

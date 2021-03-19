@@ -19,15 +19,15 @@ class EtapaService extends BaseService {
     });
   }
 
-  async createOrUpdate(OrdemId, ProcessoId, QuantidadeProduzida) {
-    var data = { OrdemId, ProcessoId, QuantidadeProduzida }
+  async createOrUpdate(OrdemId, ProcessoId, QuantidadeProduzida, QuantidadeInspecionada) {
+    var data = { OrdemId, ProcessoId, QuantidadeProduzida, QuantidadeInspecionada }
     await this.AbstractClass.findOne({
       where: { [Op.and]: [{ OrdemId }, { ProcessoId }] }
     }).then(obj => {
       if (!obj) {
         this.AbstractClass.create(data)
       } else {
-        this.AbstractClass.update({ QuantidadeProduzida }, { where: { [Op.and]: [{ OrdemId }, { ProcessoId }] } });
+        this.AbstractClass.update({ QuantidadeProduzida, QuantidadeInspecionada }, { where: { [Op.and]: [{ OrdemId }, { ProcessoId }] } });
       }
     });
   }

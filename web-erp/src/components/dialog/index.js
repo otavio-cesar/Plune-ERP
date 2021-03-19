@@ -87,7 +87,6 @@ export function MeuDialog({
                     return <option value={s.id}>{s.value}</option>
                   })
                 }
-                <option value={42}>sei la</option>
               </Select>
             </>
           }

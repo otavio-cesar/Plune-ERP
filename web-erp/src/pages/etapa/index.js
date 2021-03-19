@@ -21,6 +21,7 @@ export default function EtapaPage(props) {
     const [enableStart, setEnableStart] = useState(false);
     const [enablePause, setEnablePause] = useState(false);
     const [enableFinish, setEnableFinish] = useState(false);
+    const [enableInspect, setEnableInspect] = useState(false);
     const [selectedRow, setSelectedRow] = useState();
     const [showDialog, setShowDialog] = useState(<></>);
     const [reason, setReason] = useState('')
@@ -174,6 +175,40 @@ export default function EtapaPage(props) {
         )
     }
 
+    async function handleInspecionarStage() {
+        setShowDialog(
+            <MeuDialog
+                open={true}
+                setOpen={setShowDialog}
+                title={'Inspecionar qualidade'}
+                message={`Deseja inspecionar a qualidade da ordem: ${selectedRow.metadata.OrdemId.resolved}?`}
+                labelQntProduction={'Quantidade de produtos com qualidade aprovada'}
+                askQntProduction
+                action={async (quantidade) => {
+                    setLoading(true)
+                    console.log(quantidade)
+                    await patchStageSituation(idOrder, selectedRow.metadata.ProcessoId.value, selectedRow.metadata.ProdutoId.value, stageSituation.finished.id, null, quantidade, true)
+                        .then((data) => {
+                            console.log(data)
+                            rows.forEach((el, i) => {
+                                if (el.id == selectedRow.metadata.ProcessoId.value) {
+                                    rows[i] = { ...el, situacao: data.Field.Status.resolved, metadata: { ...data.Field } }
+                                    return
+                                }
+                            })
+                            setRows([...rows])
+                            setLoading(false)
+                            showMeuAlert('Ordem inspecionada', 'success')
+                        })
+                        .catch(e => {
+                            setLoading(false)
+                            showMeuAlert(e.message, 'error')
+                        })
+                }}>
+            </MeuDialog>
+        )
+    }
+
     async function handleSelectRow(el) {
         console.log(el)
         setSelectedRow(el.row)
@@ -187,18 +222,22 @@ export default function EtapaPage(props) {
         if (selectedRow && statusOrder.value != stageSituation.finished.id) {
             const situacao = selectedRow.metadata.Status.value
             setEnableStart(
-                situacao == stageSituation.paused.id || situacao == stageSituation.freeToStart.id
+                situacao == (stageSituation.paused.id || situacao == stageSituation.freeToStart.id || selectedRow.id == stageSituation.inspect.id) && situacao == stageSituation.started.id
             )
             setEnablePause(
-                situacao == stageSituation.started.id
+                situacao == stageSituation.started.id && !selectedRow.id == stageSituation.inspect.id
             )
             setEnableFinish(
-                situacao != stageSituation.paused.id || situacao == stageSituation.finished.id
+                (situacao != stageSituation.paused.id || situacao == stageSituation.finished.id) && situacao != stageSituation.freeToStart.id && selectedRow.id != stageSituation.inspect.id
+            )
+            setEnableInspect(
+                selectedRow.id == stageSituation.inspect.id && situacao == stageSituation.started.id
             )
         } else {
             setEnableStart(false)
             setEnableFinish(false)
             setEnablePause(false)
+            setEnableInspect(false)
         }
     }
 
@@ -229,6 +268,9 @@ export default function EtapaPage(props) {
                     </Button>
                     <Button variant="contained" color="primary" onClick={() => handleFinishStage()} disabled={!enableFinish}>
                         Finalizar
+                    </Button>
+                    <Button variant="contained" color="primary" onClick={() => handleInspecionarStage()} disabled={!enableInspect}>
+                        Inspecionar
                     </Button>
                 </div>
                 <div className="containerTable">
