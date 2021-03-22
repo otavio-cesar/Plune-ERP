@@ -7,6 +7,7 @@ const sequelize = new Sequelize(config);
 const models = [
   require('./Usuario')(sequelize, Sequelize),
   require('./Etapa')(sequelize, Sequelize),
+  require('./Ordem')(sequelize, Sequelize),
 ]
 models.forEach(model => {
   db[model.name] = model

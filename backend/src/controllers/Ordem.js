@@ -1,6 +1,9 @@
+const { Ordem } = require("../db/models");
 const PluneERPService = require("../services/PluneERPService");
-
 const pluneERPService = new PluneERPService()
+const OrdemService = require("../services/Ordem");
+
+const ordemService = new OrdemService(Ordem);
 
 module.exports = {
 
@@ -24,6 +27,21 @@ module.exports = {
       return res.json(ordens);
     } catch (e) {
       res.status(500).json(e.message)
+    }
+  },
+
+  async patchRefugar(req, res) {
+    try {
+      const { OrdemId, ProdutoId, QuantidadeRefugada } = req.body
+      if (!QuantidadeRefugada) {
+        return res.status(400).json({ message: 'Quantidade refugada não informada' });
+      }
+      await ordemService.createOrUpdate(OrdemId, ProdutoId, QuantidadeRefugada)
+        .then(async (data) => { console.log(data) })
+        .catch(err => { return res.status(400).json({ message: 'Erro ao salvar refugo', detail: err.message }) })
+      return res.status(201).json({});
+    } catch (e) {
+      res.status(500).json({ message: "Erro no servidor", detail: e.message })
     }
   },
 
